@@ -20,5 +20,5 @@
 このソフトウェアを制作するにあたり、以下の方々にお世話になりました。  
 この場をお借りして感謝申し上げます。  
   
-natto0wtr様（[CookieClicker日本語版](http://natto0wtr.web.fc2.com/CookieClicker/)）  
+natto0wtr様（[CookieClicker日本語版製作者様](http://natto0wtr.web.fc2.com/CookieClicker/)）  
 ortail様 ([本家CookieClicker製作者様](http://orteil.dashnet.org/))

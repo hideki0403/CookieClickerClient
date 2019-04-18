@@ -16,6 +16,10 @@
                 document.title = 'CookieClickerClient v2 - ' + event.args[0]
                 ipcRenderer.send('cookieData', event.args[0])
                 break
+
+            case 'shortcut':
+                ipcRenderer.send('shortcut', event.args[0])
+                break
             }
         })
     </script>

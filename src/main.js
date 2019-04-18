@@ -4,7 +4,6 @@ const ipcMain = electron.ipcMain
 const Menu = electron.Menu
 const Tray = electron.Tray
 const BrowserWindow = electron.BrowserWindow
-const globalShortcut = electron.globalShortcut; 
 
 let mainWindow = null
 
@@ -36,10 +35,6 @@ app.on('ready', function() {
     mainWindow.show()
   })
 
-  var ret = globalShortcut.register('Space', () => {
-    mainWindow.hide()
-  })
-
   mainWindow.on('close', (event) => {
     event.preventDefault()
     mainWindow.hide()
@@ -48,5 +43,13 @@ app.on('ready', function() {
   // update the tray tip
   ipcMain.on('cookieData', (event, arg) => {
     trayIcon.setToolTip(arg + ' - CCC v2')
+  })
+
+  // shortcut key
+  ipcMain.on('shortcut', (event, arg) => {
+    switch(arg) {
+      case 'space':
+        mainWindow.hide()
+    }
   })
 })

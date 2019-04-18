@@ -48,6 +48,13 @@ function cB() {
             // append to head
             document.getElementsByTagName('head')[0].appendChild(ea)
 
+            // shortcutkey
+            document.onkeydown = function(event) {
+                if (event.code === 'Space') {
+                    ipcRenderer.sendToHost('shortcut', 'space')
+                }
+            }
+
             console.log('[CustomCookies] RunGetTitle...' + sD())
             console.log('[CustomCookies] RunCustomHeader...' + uT())
             

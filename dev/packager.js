@@ -1,7 +1,7 @@
 var packager = require('electron-packager')
 var config = require('../src/package.json')
 
-var version = "2.0.1"
+var version = config.version
 
 packager({  
   dir: '../src',

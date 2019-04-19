@@ -32,7 +32,11 @@ app.on('ready', function() {
   trayIcon.setToolTip('Loading - CCC v2')
 
   trayIcon.on('click', function () {
-    mainWindow.show()
+    if(mainWindow.isVisible()) {
+      mainWindow.close()
+    } else {
+      mainWindow.show()
+    }
   })
 
   mainWindow.on('close', (event) => {

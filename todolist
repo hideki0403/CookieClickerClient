@@ -1,5 +1,6 @@
 ﻿[実装すること]
 □ titleが「CookieClicker日本語版」の状態時にtopBarを置き換えないようにする (v.2.1.2予定)
+□ packager自動zip化 & app.asarコピー
 
 [Done!]
 □ タスクバーtooltipをリアルタイム更新

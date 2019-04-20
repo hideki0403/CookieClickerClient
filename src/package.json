@@ -1,8 +1,8 @@
 {
   "name": "cookie-clicker-client",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "",
-  "updatelog": "自動更新機能が意図しない動作をしていたため修正しました",
+  "updatelog": "クッキー数が取得できないバグを修正しました",
   "main": "main.js",
   "dependencies": {
     "download": "^7.1.0",

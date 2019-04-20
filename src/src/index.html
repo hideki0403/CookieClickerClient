@@ -6,7 +6,8 @@
 <body style="margin:0; padding:0;">
     <webview id="wv" preload="js/basecookies.js" src="http://natto0wtr.web.fc2.com/CookieClicker/" style="height: 100%;"></webview>
     <script>
-        const {ipcRenderer, app} = require('electron')
+        const {ipcRenderer} = require('electron')
+        const {app} = require('electron').remote
 
         var webview = document.getElementById('wv')
 

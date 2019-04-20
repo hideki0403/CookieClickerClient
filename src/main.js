@@ -12,7 +12,7 @@ const dialog = electron.dialog
 let mainWindow = null
 
 function checkUpdate(f) {
-  if(!app.isPackaged) {
+  if(app.isPackaged || f === 'debug') {
     https.get('https://raw.githubusercontent.com/hideki0403/CookieClickerClient/master/src/package.json', function(res) {
       var body = ''
       res.setEncoding('utf8')
@@ -22,7 +22,6 @@ function checkUpdate(f) {
       res.on('data', function (chunk) {
           res = JSON.parse(body)
           if(app.getVersion() !== res.version) {
-
             var options = {
               title: 'CookieClickerClient Updater',
               type: 'info',
@@ -41,7 +40,7 @@ function checkUpdate(f) {
 
           } else {
             if(f === 'manual') {
-              dialog.showMessageBox(mainWindow, {title: 'CookieClickerClient Updater', message: 'CookieClickerClientは最新版です'})
+              dialog.showMessageBox(mainWindow, {title: 'CookieClickerClient Updater', message: 'CookieClickerClientは最新版(v' + app.getVersion() + ')です'})
             }
           }
       })
@@ -76,7 +75,7 @@ app.on('ready', function() {
     { label: '終了', click: function() {app.exit()} }
   ])
   trayIcon.setContextMenu(contextMenu)
-  trayIcon.setToolTip('Loading - CCC v2')
+  trayIcon.setToolTip('Loading - CCC v' + app.getVersion())
 
   trayIcon.on('click', function () {
     if(mainWindow.isVisible()) {
@@ -97,7 +96,7 @@ app.on('ready', function() {
 
   // update the tray tip
   ipcMain.on('cookieData', (event, arg) => {
-    trayIcon.setToolTip(arg + ' - CCC v2')
+    trayIcon.setToolTip(arg + ' - CCC v' + app.getVersion())
   })
 
   // shortcut key

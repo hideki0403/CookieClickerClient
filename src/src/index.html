@@ -1,19 +1,19 @@
 <head>
     <meta charset="UTF-8">
-    <title>CookieClickerClient v2 - Loading...</title>
+    <title>CookieClickerClient - Loading...</title>
 </head>
 
 <body style="margin:0; padding:0;">
     <webview id="wv" preload="js/basecookies.js" src="http://natto0wtr.web.fc2.com/CookieClicker/" style="height: 100%;"></webview>
     <script>
-        const {ipcRenderer} = require('electron')
+        const {ipcRenderer, app} = require('electron')
 
         var webview = document.getElementById('wv')
 
         webview.addEventListener('ipc-message', function(event) {
             switch(event.channel){
             case 'cookieData':
-                document.title = 'CookieClickerClient v2 - ' + event.args[0]
+                document.title = 'CookieClickerClient v' + app.getVersion() + ' - ' + event.args[0]
                 ipcRenderer.send('cookieData', event.args[0])
                 break
 

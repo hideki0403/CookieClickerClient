@@ -1,4 +1,6 @@
 const electron = require('electron')
+const download = require('download')
+const https = require('https')
 const app = electron.app
 const ipcMain = electron.ipcMain
 const Menu = electron.Menu
@@ -6,6 +8,22 @@ const Tray = electron.Tray
 const BrowserWindow = electron.BrowserWindow
 
 let mainWindow = null
+
+function checkUpdate() {
+  https.get('https://raw.githubusercontent.com/hideki0403/CookieClickerClient/master/src/package.json', function(res) {
+    var body = ''
+    res.setEncoding('utf8')
+    res.on('data', function (chunk) {
+        body += chunk
+    })
+    res.on('data', function (chunk) {
+        res = JSON.parse(body)
+        
+    })
+  }).on('error', function (error) {
+    console.log(error.message)
+  })
+}
 
 app.on('window-all-closed', function() {
   if (process.platform !== 'darwin') {

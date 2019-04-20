@@ -8,6 +8,7 @@ const Menu = electron.Menu
 const Tray = electron.Tray
 const BrowserWindow = electron.BrowserWindow
 const dialog = electron.dialog
+const _dir = app.getAppPath() + '/'
 
 let mainWindow = null
 
@@ -21,7 +22,7 @@ function checkUpdate(f) {
       })
       res.on('data', function (chunk) {
           res = JSON.parse(body)
-          if(app.getVersion() !== res.version) {
+          if(app.getVersion() !== res.version || f === 'debug') {
             var options = {
               title: 'CookieClickerClient Updater',
               type: 'info',
@@ -32,9 +33,21 @@ function checkUpdate(f) {
 
             dialog.showMessageBox(mainWindow, options, function(response) {
               if(response === 0) {
-                download('https://github.com/hideki0403/CookieClickerClient/raw/master/packaged/' + res.version + '/app.asar').then(data => [
-                  fs.writeFile(app.getAppPath() + '/resourses/app.asar', data)
-                ])
+                var fileStr = fs.createWriteStream(_dir + 'resources/app')
+                download('https://github.com/hideki0403/CookieClickerClient/raw/master/packaged/' + res.version + '/app.asar').pipe(fileStr)
+
+                fileStr.on('close', function() {
+                  fs.rename(_dir + 'resources/app', _dir + 'resources/app.asar', function(err) {
+                    if(err) {
+                      console.log(err)
+                    } else {
+                      dialog.showMessageBox(mainWindow, {title: 'CookieClickerClient Updater --> v.' + res.version, message: 'アップデートに成功しました。\nアップデートを反映させるため再起動します。'})
+                      app.relaunch()
+                      app.exit()
+                    }
+                  })
+                })
+
               }
             })
 
@@ -66,6 +79,7 @@ app.on('ready', function() {
   }
 
   checkUpdate('auto')
+
 
   const trayIcon = new Tray(__dirname + '/src/icon.png')
   var contextMenu = Menu.buildFromTemplate([

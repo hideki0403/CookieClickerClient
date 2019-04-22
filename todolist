@@ -1,6 +1,7 @@
 ﻿[実装すること]
-□ titleが「CookieClicker日本語版」の状態時にtopBarを置き換えないようにする (v.2.1.2予定)
-□ 更新時にapp.asarのmd5値を比較してファイル破損がないか確認するようにする
+□ titleが「CookieClicker日本語版」の状態時にtopBarを置き換えないようにする
+□ about機能
+□ 更新時にネットに接続できなかった場合にエラー表示
 
 [Done!]
 □ タスクバーtooltipをリアルタイム更新
@@ -11,6 +12,7 @@
 □ アップデーター実装
 □ tooltop等バージョン置き換え (ex; v2 --> v2.1.0)
 □ packager自動zip化 & app.asarコピー + md5生成
+□ 更新時にapp.asarのmd5値を比較してファイル破損がないか確認するようにする
 
 [できなかったこと(保留)]
 □ index.htmlによるフォント変更 (WebView配下は変更できない)

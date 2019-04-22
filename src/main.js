@@ -1,5 +1,6 @@
 const electron = require('electron')
 const download = require('download')
+const request = require('request')
 const https = require('https')
 const fs = require('fs')
 const app = electron.app
@@ -37,13 +38,34 @@ function checkUpdate(f) {
                 download('https://github.com/hideki0403/CookieClickerClient/raw/master/packaged/' + res.version + '/app.asar').pipe(fileStr)
 
                 fileStr.on('close', function() {
-                  fs.rename(_dir + 'resources/app', _dir + 'resources/app.asar', function(err) {
+                  fs.rename(_dir + 'resources/app.asar', _dir + 'resources/app.asar.bak', function(err) {
                     if(err) {
                       console.log(err)
                     } else {
-                      dialog.showMessageBox(mainWindow, {title: 'CookieClickerClient Updater --> v.' + res.version, message: 'アップデートに成功しました。\nアップデートを反映させるため再起動します。'})
-                      app.relaunch()
-                      app.exit()
+                      // if download success
+                      fs.rename(_dir + 'resources/app', _dir + 'resources/app.asar', function(err) {
+                        request('https://raw.githubusercontent.com/hideki0403/CookieClickerClient/master/packaged/' + res.version + '/md5', function (err, res, data) {
+                          function createMd5() {
+                            const target = fs.readFileSync(_dir + 'resources/app.asar')
+                            const md5hash = crypto.createHash('md5')
+                            md5hash.update(target)
+                            return md5hash.digest('hex')
+                          }
+                          
+                          var md5 = createMd5()
+                          if(md5 === data) {
+                            // if success
+                            dialog.showMessageBox(mainWindow, {title: 'CookieClickerClient Updater --> v.' + res.version, message: 'アップデートに成功しました。\nMD5: ' + md5 + '\nアップデートを反映させるため再起動します。'})
+                            app.relaunch()
+                            app.exit()
+                          } else {
+                            // if error
+                            fs.rename(_dir + 'resources/app.asar.bak', _dir + 'resources/app.asar', function(err) {})
+                            dialog.showErrorBox('CookieClickerClient Updater', 'アップデートに失敗しました。アップデート前のデータを復元します。\nMD5:' + md5)
+                          }
+                          
+                        })
+                      })
                     }
                   })
                 })

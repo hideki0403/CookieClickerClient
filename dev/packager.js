@@ -1,29 +1,39 @@
 var packager = require('electron-packager')
-var config = require('../src/package.json')
-var zipdir = require('zip-dir')
-var fs = require('fs')
-var crypto = require('crypto')
+var src = '../resources/app'
+var config = require(src + '/package.json')
+var electronInstaller = require('electron-winstaller')
 
 var version = config.version
 
 console.log('[Packager] CreatePackage')
 packager({  
-  dir: '../src',
+  dir: src,
   out: '../packaged/' + version,
-  name: config.name,
+  name: 'CookieClickerClient',
   platform: 'win32',
-  arch: 'all',
+  arch: 'x64',
   icon: './icon.ico',
 
   'app-bundle-id': 'ml.hideki0403',
   'app-version': version,
 
-  overwrite: false,
+  overwrite: true,
   asar: true,
   prune: true,
   ignore: "node_modules/(electron-packager|electron-prebuilt|\.bin)|release\.js",
 }).then(() => {
   console.log('[Packager] done.')
+
+  electronInstaller.createWindowsInstaller({
+    appDirectory: '../packaged/' + version + '/CookieClickerClient-win32-x64',
+    outputDirectory: '../packaged/installers/' + version,
+    authors: 'yukineko',
+    exe: 'CookieClickerClient.exe',
+    setupIcon: './icon.ico',
+    description: 'クッキー職人用クライアント'
+  });
+
+  /*
   zipdir('../packaged/' + version + '/cookie-clicker-client-win32-ia32', { saveTo: '../packaged/' + version + '/cookie-clicker-client-win32-ia32.zip' }, function (err, buffer) {
     if(err) {
       console.log(err)
@@ -61,4 +71,5 @@ packager({
       })
     }
   })
+  */
 })

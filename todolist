@@ -1,11 +1,9 @@
 ﻿[実装すること]
 □ titleが「CookieClicker日本語版」の状態時にtopBarを置き換えないようにする
-□ about機能
 □ スタートアップ機能 (node-auto-launch)
 □ スタートアップ時は非表示状態から開始
 □ メニュー機能を付ける
-□ about-windowを追加する
-□ electron-window-stateを追加する
+□ ウィンドウ表示関連のショートカットキー
 
 [不具合報告]
 □ ソフトウェア再起動時に初期化される（データが消える）バグ（2019/04/25報告あり）--> Cookieを外部保存する？
@@ -23,6 +21,10 @@
 □ 更新時にネットに接続できなかった場合にエラー表示 --> autoUpdater対応により不要に
 □ ソフト一覧に登録
 □ 更新機能 --> autoUpdaterで対応
+□ about機能
+□ about-windowを追加する
+□ tooltipにセパレーター追加
+□ electron-window-stateを追加する
 
 [不具合修正済み]
 

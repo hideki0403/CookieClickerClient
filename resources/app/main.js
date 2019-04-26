@@ -11,16 +11,25 @@ const Tray = electron.Tray
 const BrowserWindow = electron.BrowserWindow
 const dialog = electron.dialog
 const autoUpdater = electron.autoUpdater
+const openAboutWindow = require('about-window').default
+const windowStateKeeper = require('electron-window-state')
 
 const updaterFeedURL = 'https://cookie-cicker-client.herokuapp.com/update/' + platform + '/' + version
 
-function appUpdater() {
+function appUpdater(f) {
 
   autoUpdater.setFeedURL(updaterFeedURL)
   autoUpdater.on('error', err => console.log(err))
   autoUpdater.on('checking-for-update', () => console.log('checking-for-update'))
   autoUpdater.on('update-available', () => console.log('update-available'))
-  autoUpdater.on('update-not-available', () => console.log('update-not-available'))
+  autoUpdater.on('update-not-available', () => {
+    if(f !== undefined) {
+      dialog.showMessageBox({
+        title: 'CookieClickerClient Updater',
+        message: '現在のクライアントは最新版です'
+      })
+    } 
+  })
   autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
       let message = app.getName() + ' ' + releaseName
       if (releaseNotes) {
@@ -61,7 +70,12 @@ app.on('window-all-closed', function() {
 })
 
 app.on('ready', function() {
-  mainWindow = new BrowserWindow({width: 800, height: 600, icon: __dirname + '/src/icon.png'})
+  const state = windowStateKeeper({
+    defaultWidth: 1000,
+    defaultHeight: 800
+  })
+  
+  mainWindow = new BrowserWindow({x: state.x, y: state.y, width: state.width, height: state.height, icon: __dirname + '/src/icon.png'})
   mainWindow.setMenu(null)
   mainWindow.loadURL('file://' + __dirname + '/src/index.html')
   if(!app.isPackaged) {
@@ -69,10 +83,20 @@ app.on('ready', function() {
     mainWindow.openDevTools()
   }
 
+  var abouts = {
+    icon_path: __dirname + '/src/icon.png',
+    product_name: 'CookieClickerClient',
+    description: 'クッキー職人用クライアント',
+    copyright: 'Copyright (C) 2019 yukineko',
+    use_version_info: true
+  }
+
   const trayIcon = new Tray(__dirname + '/src/icon.png')
   var contextMenu = Menu.buildFromTemplate([
     { label: 'ウィンドウを表示', click: function() {mainWindow.show()} },
-    { label: '更新があるか確認', click: function() {} },
+    { label: '更新があるか確認', click: function() {appUpdater('m')} },
+    { label: 'このソフトについて', click: function() {openAboutWindow(abouts)}},
+    { type: 'separator' },
     { label: '再起動', click: function() {app.relaunch(); app.exit()} },
     { label: '終了', click: function() {app.exit()} }
   ])
@@ -108,4 +132,7 @@ app.on('ready', function() {
         mainWindow.hide()
     }
   })
+
+  state.manage(mainWindow)
+
 })

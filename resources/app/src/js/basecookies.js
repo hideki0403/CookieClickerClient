@@ -15,7 +15,17 @@ window.addEventListener('load', function() {
 })
 */
 
-const {ipcRenderer} = require('electron')
+const { ipcRenderer } = require('electron')
+const { session } = require('electron').remote
+const Store = require('electron-store')
+const store = new Store()
+
+function sV() {
+    if(store.get('save-cookie')) {
+        store.set('save-data', localStorage.getItem('CookieClickerGame'))
+        console.log('SaveSuccess.')
+    }
+}
 
 function cB() {
     setTimeout(function() {
@@ -31,14 +41,22 @@ function cB() {
             document.getElementById('smallSupport').remove()
             document.getElementById('support').remove()
 
-            setTimeout(function() {
-                var ele = document.getElementById('topBar')
-                while( ele.firstChild ){
-                    ele.removeChild( ele.firstChild )
-                }
-                // append to topBar
-                document.getElementById('topBar').innerHTML = '<marquee id="marquee" style="font-size: 20px;">[CustomCookieClicker] NowLoading...</marquee>'
-            }, 1500)
+            var rT = setInterval(function() {
+                if(document.getElementById('loader') === null) {
+                    var ele = document.getElementById('topBar')
+                    while( ele.firstChild ){
+                        ele.removeChild( ele.firstChild )
+                    }
+                    // append to topBar
+                    document.getElementById('topBar').innerHTML = '<marquee id="marquee" style="font-size: 20px;">[CustomCookieClicker] NowLoading...</marquee>'
+                    clearInterval(rT)
+
+                    if(store.get('save-cookie')) {
+                        Game.ImportSaveCode(store.get('savedata'))
+                        console.log('[CustomCookies] SuccessLoadSavedata.')
+                    }
+                } 
+            }, 100)
 
             // append css
             var ea = document.createElement('link')
@@ -59,6 +77,8 @@ function cB() {
             console.log('[CustomCookies] RunCustomHeader...' + uT())
             
             console.log('[CustomCookies] LoadSuccessfull.')
+
+            setInterval(function() { sV() }, 30000)
 
         } else {
             chk()

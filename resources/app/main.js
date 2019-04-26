@@ -11,8 +11,13 @@ const Tray = electron.Tray
 const BrowserWindow = electron.BrowserWindow
 const dialog = electron.dialog
 const autoUpdater = electron.autoUpdater
+const session = electron.session
 const openAboutWindow = require('about-window').default
 const windowStateKeeper = require('electron-window-state')
+const Store = require('electron-store')
+const config = new Store()
+const AutoLaunch = require('auto-launch')
+const autolauncher = new AutoLaunch({name: 'CookieClickerClient'})
 
 const updaterFeedURL = 'http://cookie-clicker-client.herokuapp.com/update/' + platform + '/' + version
 
@@ -21,7 +26,15 @@ function appUpdater(f) {
   autoUpdater.setFeedURL(updaterFeedURL)
   autoUpdater.on('error', err => console.log(err))
   autoUpdater.on('checking-for-update', () => console.log('checking-for-update'))
-  autoUpdater.on('update-available', () => console.log('update-available'))
+  autoUpdater.on('update-available', () => {
+    if(f !== undefined) {
+      dialog.showMessageBox({
+        title: 'CookieClickerClient Updater',
+        message: '更新が見つかりました。ダウンロードを開始します。'
+      })
+    } 
+  })
+
   autoUpdater.on('update-not-available', () => {
     if(f !== undefined) {
       dialog.showMessageBox({
@@ -30,8 +43,9 @@ function appUpdater(f) {
       })
     } 
   })
+
   autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
-      let message = app.getName() + ' ' + releaseName
+      let message = 'CookieClickerClient v' + releaseName
       if (releaseNotes) {
           const splitNotes = releaseNotes.split(/[^\r]\n/)
           message += '\n\nリリース内容:\n'
@@ -40,6 +54,7 @@ function appUpdater(f) {
           })
       }
       dialog.showMessageBox({
+          title: 'CookieClickerClient Updater',
           type: 'question',
           buttons: ['再起動', 'あとで'],
           defaultId: 0,
@@ -47,7 +62,7 @@ function appUpdater(f) {
           detail: message
       }, response => {
           if (response === 0) {
-              setTimeout(() => autoUpdater.quitAndInstall(), 1)
+              setTimeout(() => {app.relaunch(); app.exit()}, 1)
           }
       })
   })
@@ -59,6 +74,13 @@ appUpdater()
 
 function showErr(err) {
   dialog.showErrorBox('CookieClickerClient Error', err)
+}
+
+function store(item) {
+  if(config.get(item) === undefined) {
+    config.set(item, false)
+  }
+  return config.get(item)
 }
 
 let mainWindow = null
@@ -76,7 +98,61 @@ app.on('ready', function() {
   })
   
   mainWindow = new BrowserWindow({x: state.x, y: state.y, width: state.width, height: state.height, icon: __dirname + '/src/icon.png'})
-  mainWindow.setMenu(null)
+
+  const menu = Menu.buildFromTemplate([
+    {
+      label: 'メニュー',
+      submenu: [
+        { label: '再起動', click: function() {app.relaunch(); app.exit()} },
+        { label: '終了', click: function() {app.exit()} }
+      ]
+    }, {
+      label: '設定',
+      submenu: [
+        {
+          label: 'スタートアップに登録する',
+          type: 'checkbox',
+          checked: store('startup'),
+          click: function() {
+            if(store('startup')) {
+              autolauncher.disable()
+              config.set('startup', false)
+            } else {
+              autolauncher.enable()
+              config.set('startup', true)
+            }
+          }
+        }, {
+          type: 'separator'
+        }, {
+          label: '詳細設定',
+          submenu: [
+            {
+              label: 'データを外部保存する',
+              type: 'checkbox',
+              checked: store('save-cookie'),
+              click: function() {
+                if(store('save-cookie')) {
+                  config.set('save-cookie', false)
+                } else {
+                  config.set('save-cookie', true)
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }, {
+      label: 'ヘルプ',
+      submenu: [
+        { label: '更新があるか確認', click: function() {appUpdater('m')} },
+        { type: 'separator' },
+        { label: 'バージョン情報', click: function() {openAboutWindow(abouts)}}
+      ]
+    }
+  ])
+
+  mainWindow.setMenu(menu)
   mainWindow.loadURL('file://' + __dirname + '/src/index.html')
   if(!app.isPackaged) {
     // if not packaged, open the devtools

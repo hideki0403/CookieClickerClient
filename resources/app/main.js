@@ -14,7 +14,7 @@ const autoUpdater = electron.autoUpdater
 const openAboutWindow = require('about-window').default
 const windowStateKeeper = require('electron-window-state')
 
-const updaterFeedURL = 'https://cookie-cicker-client.herokuapp.com/update/' + platform + '/' + version
+const updaterFeedURL = 'http://cookie-clicker-client.herokuapp.com/update/' + platform + '/' + version
 
 function appUpdater(f) {
 

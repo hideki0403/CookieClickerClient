@@ -45,7 +45,7 @@ function appUpdater(f) {
   })
 
   autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
-      let message = 'CookieClickerClient v' + releaseName
+      let message = '[CookieClickerClient v' + releaseName + ']'
       if (releaseNotes) {
           const splitNotes = releaseNotes.split(/[^\r]\n/)
           message += '\n\nリリース内容:\n'
@@ -54,16 +54,9 @@ function appUpdater(f) {
           })
       }
       dialog.showMessageBox({
-          title: 'CookieClickerClient Updater',
-          type: 'question',
-          buttons: ['再起動', 'あとで'],
-          defaultId: 0,
-          message: '新しいバージョンをダウンロードしました。再起動しますか？',
-          detail: message
-      }, response => {
-          if (response === 0) {
-              setTimeout(() => {app.relaunch(); app.exit()}, 1)
-          }
+        title: 'CookieClickerClient Updater',
+        message: '新しいバージョンをダウンロードしました。\n更新データは次回起動時に適応されます。',
+        detail: message
       })
   })
   autoUpdater.checkForUpdates()
@@ -97,7 +90,13 @@ app.on('ready', function() {
     defaultHeight: 800
   })
   
-  mainWindow = new BrowserWindow({x: state.x, y: state.y, width: state.width, height: state.height, icon: __dirname + '/src/icon.png'})
+  mainWindow = new BrowserWindow({show: false, x: state.x, y: state.y, width: state.width, height: state.height, icon: __dirname + '/src/icon.png'})
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    if(!store('visible')) {
+      mainWindow.show()
+    }
+  })
 
   const menu = Menu.buildFromTemplate([
     {
@@ -123,6 +122,17 @@ app.on('ready', function() {
             }
           }
         }, {
+          label: '起動時にウィンドウを表示しない',
+          type: 'checkbox',
+          checked: store('visible'),
+          click: function() {
+            if(store('visible')) {
+              config.set('visible', false)
+            } else {
+              config.set('visible', true)
+            }
+          }
+        },{
           type: 'separator'
         }, {
           label: '詳細設定',

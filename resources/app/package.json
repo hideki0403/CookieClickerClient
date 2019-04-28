@@ -1,12 +1,13 @@
 {
   "name": "cookie-clicker-client",
-  "version": "2.2.5",
+  "version": "2.3.0",
   "description": "",
   "updatelog": "アップデーター本体を切り替えました。最新版をダウンロードしてください。",
   "main": "main.js",
   "dependencies": {
     "about-window": "^1.12.1",
     "auto-launch": "^5.0.5",
+    "discord-rich-presence": "0.0.8",
     "download": "^7.1.0",
     "electron": "^4.1.4",
     "electron-packager": "^13.1.1",

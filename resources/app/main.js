@@ -18,6 +18,8 @@ const Store = require('electron-store')
 const config = new Store()
 const AutoLaunch = require('auto-launch')
 const autolauncher = new AutoLaunch({name: 'CookieClickerClient'})
+const client = require('discord-rich-presence')('571916334791917576')
+const timestamp = Date.now()
 
 const updaterFeedURL = 'http://cookie-clicker-client.herokuapp.com/update/' + platform + '/' + version
 
@@ -76,6 +78,23 @@ function store(item) {
   return config.get(item)
 }
 
+function updateRPC(cookies) {
+  if(!store('disableRPC')) {
+    if(count++ % 15 === 0) {
+      client.updatePresence({
+        state: cookies,
+        details: 'version ' + version,
+        startTimestamp: timestamp,
+        largeImageKey: 'icon',
+        largeImageText: 'Clicking on a cookie',
+        smallImageKey: 'sub',
+        smallImageText: 'CookieCickerClient v' + version,
+        instance: true,
+      })
+    }
+  }
+}
+
 let mainWindow = null
 
 app.on('window-all-closed', function() {
@@ -97,6 +116,8 @@ app.on('ready', function() {
       mainWindow.show()
     }
   })
+
+  updateRPC('Loading...')
 
   const menu = Menu.buildFromTemplate([
     {
@@ -132,7 +153,18 @@ app.on('ready', function() {
               config.set('visible', true)
             }
           }
-        },{
+        }, {
+          label: 'DiscordRPCを無効化する',
+          type: 'checkbox',
+          checked: store('disableRPC'),
+          click: function() {
+            if(store('disableRPC')) {
+              config.set('disableRPC', false)
+            } else {
+              config.set('disableRPC', true)
+            }
+          }
+        }, {
           type: 'separator'
         }, {
           label: '詳細設定',
@@ -209,6 +241,7 @@ app.on('ready', function() {
   // update the tray tip
   ipcMain.on('cookieData', (event, arg) => {
     trayIcon.setToolTip(arg + ' - CCC v' + app.getVersion())
+    updateRPC(arg)
   })
 
   // shortcut key

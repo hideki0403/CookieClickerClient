@@ -78,6 +78,8 @@ function store(item) {
   return config.get(item)
 }
 
+count = 0
+
 function updateRPC(cookies) {
   if(!store('disableRPC')) {
     if(count++ % 15 === 0) {

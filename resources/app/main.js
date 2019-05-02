@@ -11,7 +11,8 @@ const Tray = electron.Tray
 const BrowserWindow = electron.BrowserWindow
 const dialog = electron.dialog
 const autoUpdater = electron.autoUpdater
-const session = electron.session
+const powerSaveBlocker = electron.powerSaveBlocker
+const shell = electron.shell
 const openAboutWindow = require('about-window').default
 const windowStateKeeper = require('electron-window-state')
 const Store = require('electron-store')
@@ -105,6 +106,14 @@ app.on('window-all-closed', function() {
   }
 })
 
+if(store('rendererblocker')) {
+  app.commandLine.appendSwitch('disable-renderer-backgrounding')
+}
+
+if(store('powersaveblocker')) {
+  powerSaveBlocker.start('prevent-app-suspension')
+}
+
 app.on('ready', function() {
   const state = windowStateKeeper({
     defaultWidth: 1000,
@@ -182,13 +191,37 @@ app.on('ready', function() {
                   config.set('save-cookie', true)
                 }
               }
+            }, {
+              label: '描画優先度を下げない',
+              type: 'checkbox',
+              checked: store('rendererblocker'),
+              click: function() {
+                if(store('rendererblocker')) {
+                  config.set('rendererblocker', false)
+                } else {
+                  config.set('rendererblocker', true)
+                }
+              }
+            }, {
+              label: '動作優先度を下げない',
+              type: 'checkbox',
+              checked: store('powersaveblocker'),
+              click: function() {
+                if(store('powersaveblocker')) {
+                  config.set('powersaveblocker', false)
+                } else {
+                  config.set('powersaveblocker', true)
+                }
+              }
             }
+
           ]
         }
       ]
     }, {
       label: 'ヘルプ',
       submenu: [
+        { label: 'ヘルプを開く', click: function() {shell.openExternal('https://github.com/hideki0403/CookieClickerClient/wiki/help')}},
         { label: '更新があるか確認', click: function() {appUpdater('m')} },
         { type: 'separator' },
         { label: 'バージョン情報', click: function() {openAboutWindow(abouts)}}

@@ -1,9 +1,8 @@
 /*
     [CookieClicker CustomEdition]
     Created by yukineko (@hideki_0403)
-
-    can use jquery.
 */
+
 console.log('[BaseCustomCookies] loadSuccessfull.')
 
 /*
@@ -108,6 +107,10 @@ function uT() {
         }
         document.getElementById('marquee').innerHTML = hd.join('&emsp;')
     }, 1000)
+}
+
+function lM() {
+    
 }
 
 console.log('[CustomCookies] finding the body...' + chk())

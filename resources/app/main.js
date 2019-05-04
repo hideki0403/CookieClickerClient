@@ -72,6 +72,13 @@ function showErr(err) {
   dialog.showErrorBox('CookieClickerClient Error', err)
 }
 
+function showDialog(msg) {
+  dialog.showMessageBox({
+    title: 'CookieClickerClient',
+    detail: msg
+  })
+}
+
 function store(item) {
   if(config.get(item) === undefined) {
     config.set(item, false)
@@ -134,6 +141,8 @@ app.on('ready', function() {
     {
       label: 'メニュー',
       submenu: [
+        { label: 'ページ再読み込み', click: function(e, f) {f.reload()} },
+        { type: 'separator'},
         { label: '再起動', click: function() {app.relaunch(); app.exit()} },
         { label: '終了', click: function() {app.exit()} }
       ]
@@ -196,6 +205,7 @@ app.on('ready', function() {
               type: 'checkbox',
               checked: store('rendererblocker'),
               click: function() {
+                showDialog('変更を適応するためには再起動をしてください')
                 if(store('rendererblocker')) {
                   config.set('rendererblocker', false)
                 } else {
@@ -207,12 +217,25 @@ app.on('ready', function() {
               type: 'checkbox',
               checked: store('powersaveblocker'),
               click: function() {
+                showDialog('変更を適応するためには再起動をしてください')
                 if(store('powersaveblocker')) {
                   config.set('powersaveblocker', false)
                 } else {
                   config.set('powersaveblocker', true)
                 }
               }
+            }, {
+              type: 'separator'
+            }, {
+              label: 'デバッグ',
+              submenu: [
+                {
+                  label: '開発者ツール',
+                  click: function() {
+                    mainWindow.openDevTools()
+                  }
+                }
+              ]
             }
 
           ]

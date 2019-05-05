@@ -1,6 +1,9 @@
 # CookieClickerClient
 *クッキーをもっと効率的につくろう。*  
 *-- Make cookies more efficient*  
+
+## ダウンロード  
+最新版ダウンロードは[こちら](https://cookie-clicker-client.herokuapp.com/)から。
   
 ## なにこれ？
 いわゆる"クッキー大量生産ゲー"のためのカスタマイズクライアントです。  

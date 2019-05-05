@@ -90,18 +90,17 @@ count = 0
 
 function updateRPC(cookies) {
   if(!store('disableRPC')) {
-    if(count++ % 10 === 0) {
+    if(count++ % 20 === 0) {
       client.updatePresence({
-        state: cookies.cookies,
-        details: cookies.cps,
+        details: cookies.cookies,
+        state: cookies.cps,
         startTimestamp: timestamp,
         largeImageKey: 'icon',
         largeImageText: 'Clicking on a cookie',
         smallImageKey: 'sub',
-        smallImageText: 'CookieCickerClient v' + version,
+        smallImageText: 'CookieClickerClient v' + version,
         instance: true,
       })
-      count = 0
     }
   }
 }

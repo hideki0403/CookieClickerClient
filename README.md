@@ -1,5 +1,6 @@
 # CookieClickerClient
-クッキーをもっと効率的につくろう。  
+*クッキーをもっと効率的につくろう。*  
+*-- Make cookies more efficient*  
   
 ## なにこれ？
 いわゆる"クッキー大量生産ゲー"のためのカスタマイズクライアントです。  

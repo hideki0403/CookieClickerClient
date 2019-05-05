@@ -14,7 +14,7 @@
         webview.addEventListener('ipc-message', function(event) {
             switch(event.channel){
             case 'cookieData':
-                document.title = 'CookieClickerClient v' + app.getVersion() + ' - ' + event.args[0]
+                document.title = 'CookieClickerClient v' + app.getVersion() + ' - ' + event.args[0].cookies
                 ipcRenderer.send('cookieData', event.args[0])
                 break
 

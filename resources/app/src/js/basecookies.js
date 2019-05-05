@@ -92,7 +92,11 @@ function chk() {
 
 function sD() {
     setInterval(function() {
-        ipcRenderer.sendToHost('cookieData', document.title.replace(" - CookieClicker日本語版", ""))
+        var cD = {
+            'cps': document.getElementById('cookies').getElementsByTagName('div')[0].innerText.replace('クッキー毎秒(CpS) : ', '') + ' CpS',
+            'cookies': document.title.replace(" - CookieClicker日本語版", "")
+        }
+        ipcRenderer.sendToHost('cookieData', cD)
     }, 2000)
 }
 

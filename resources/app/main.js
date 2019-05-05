@@ -90,10 +90,10 @@ count = 0
 
 function updateRPC(cookies) {
   if(!store('disableRPC')) {
-    if(count++ % 15 === 0) {
+    if(count++ % 10 === 0) {
       client.updatePresence({
-        state: cookies,
-        details: 'version ' + version,
+        state: cookies.cookies,
+        details: cookies.cps,
         startTimestamp: timestamp,
         largeImageKey: 'icon',
         largeImageText: 'Clicking on a cookie',
@@ -101,6 +101,7 @@ function updateRPC(cookies) {
         smallImageText: 'CookieCickerClient v' + version,
         instance: true,
       })
+      count = 0
     }
   }
 }
@@ -135,7 +136,7 @@ app.on('ready', function() {
     }
   })
 
-  updateRPC('Loading...')
+  updateRPC('')
 
   const menu = Menu.buildFromTemplate([
     {
@@ -298,7 +299,7 @@ app.on('ready', function() {
 
   // update the tray tip
   ipcMain.on('cookieData', (event, arg) => {
-    trayIcon.setToolTip(arg + ' - CCC v' + app.getVersion())
+    trayIcon.setToolTip(arg.cookies + ' - CCC v' + app.getVersion())
     updateRPC(arg)
   })
 

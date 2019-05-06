@@ -21,6 +21,7 @@ const AutoLaunch = require('auto-launch')
 const autolauncher = new AutoLaunch({name: 'CookieClickerClient'})
 const client = require('discord-rich-presence')('571916334791917576')
 const timestamp = Date.now()
+const ProgressBar = require('electron-progressbar')
 
 const updaterFeedURL = 'http://cookie-clicker-client.herokuapp.com/update/' + platform + '/' + version
 
@@ -30,10 +31,25 @@ function appUpdater(f) {
   autoUpdater.on('error', err => console.log(err))
   autoUpdater.on('checking-for-update', () => console.log('checking-for-update'))
   autoUpdater.on('update-available', () => {
+
     if(f !== undefined) {
       dialog.showMessageBox({
         title: 'CookieClickerClient Updater',
         message: '更新が見つかりました。ダウンロードを開始します。'
+      })
+
+      progressBar = new ProgressBar({
+        indeterminate: false,
+        text: 'ダウンロードしています...',
+        detail: 'checking...',
+        style: {
+          bar: {
+            'background': 'white'
+          },
+          value: {
+            'background': '#06b025'
+          }
+        }
       })
     } 
   })
@@ -45,6 +61,12 @@ function appUpdater(f) {
         message: '現在のクライアントは最新版です'
       })
     } 
+  })
+
+  autoUpdater.on('download-progress', (progressObj) => {
+    progressBar.text = 'ダウンロードしています... (' + progressObj.percent + '%)'
+    progressBar.value = progressObj.percent
+    progressBar.detail = 'Download speed: ' + progressObj.bytesPerSecond + ' (' + progressObj.transferred + "/" + progressObj.total + ')'
   })
 
   autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
@@ -122,6 +144,7 @@ if(store('powersaveblocker')) {
 }
 
 app.on('ready', function() {
+
   const state = windowStateKeeper({
     defaultWidth: 1000,
     defaultHeight: 800

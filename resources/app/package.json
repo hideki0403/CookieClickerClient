@@ -1,6 +1,6 @@
 {
   "name": "cookie-clicker-client",
-  "version": "2.3.4",
+  "version": "2.4.0",
   "description": "",
   "updatelog": "アップデーター本体を切り替えました。最新版をダウンロードしてください。",
   "main": "main.js",
@@ -11,6 +11,7 @@
     "download": "^7.1.0",
     "electron": "^4.1.4",
     "electron-packager": "^13.1.1",
+    "electron-progressbar": "^1.2.0",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^3.2.0",
     "electron-window-state": "^5.0.3",

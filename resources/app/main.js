@@ -39,7 +39,6 @@ function appUpdater(f) {
       })
 
       progressBar = new ProgressBar({
-        indeterminate: false,
         text: 'ダウンロードしています...',
         detail: 'checking...',
         style: {
@@ -63,14 +62,8 @@ function appUpdater(f) {
     } 
   })
 
-  autoUpdater.on('download-progress', (progressObj) => {
-    progressBar.text = 'ダウンロードしています... (' + progressObj.percent + '%)'
-    progressBar.value = progressObj.percent
-    progressBar.detail = 'Download speed: ' + progressObj.bytesPerSecond + ' (' + progressObj.transferred + "/" + progressObj.total + ')'
-  })
-
   autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
-      let message = '[CookieClickerClient v' + releaseName + ']'
+      let message = 'CookieClickerClient v' + releaseName + ''
       if (releaseNotes) {
           const splitNotes = releaseNotes.split(/[^\r]\n/)
           message += '\n\nリリース内容:\n'
@@ -78,6 +71,7 @@ function appUpdater(f) {
               message += notes + '\n\n'
           })
       }
+      progressBar.setCompleted()
       dialog.showMessageBox({
         title: 'CookieClickerClient Updater',
         message: '新しいバージョンをダウンロードしました。\n更新データは次回起動時に適応されます。',

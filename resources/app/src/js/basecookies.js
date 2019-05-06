@@ -43,11 +43,15 @@ function cB() {
             var rT = setInterval(function() {
                 if(document.getElementById('loader') === null) {
                     var ele = document.getElementById('topBar')
-                    while( ele.firstChild ){
-                        ele.removeChild( ele.firstChild )
-                    }
-                    // append to topBar
-                    document.getElementById('topBar').innerHTML = '<marquee id="marquee" style="font-size: 20px;">[CustomCookieClicker] NowLoading...</marquee>'
+                    // topBarはいらない子なので消し飛ばす
+                    ele.parentNode.removeChild(ele)
+
+                    // topを32pxから0pxに変更
+                    document.getElementById('game').style = 'top: 0px;'
+                    // このままでは画面下に黒い帯ができてしまうので高さを修正
+                    document.getElementById('backgroundLeftCanvas').height = document.body.clientHeight
+                    document.getElementById('backgroundCanvas').height = document.body.clientHeight
+
                     clearInterval(rT)
 
                     if(store.get('save-cookie')) {
@@ -73,7 +77,6 @@ function cB() {
             }
 
             console.log('[CustomCookies] RunGetTitle...' + sD())
-            console.log('[CustomCookies] RunCustomHeader...' + uT())
             
             console.log('[CustomCookies] LoadSuccessfull.')
 
@@ -98,23 +101,6 @@ function sD() {
         }
         ipcRenderer.sendToHost('cookieData', cD)
     }, 2000)
-}
-
-function uT() {
-    setInterval(function() {
-        var li = document.getElementsByClassName('listing')
-        var hd = new Array()
-        for(var i=0; li.length > i; i++) {
-            if(!li[i].innerText.match(/フレーバークッキー|ミルクはそれぞれの実績|隠し実績|解除済みのミルク/ || li[i].innerText === '')) {
-                hd.push(li[i].innerText)
-            }
-        }
-        document.getElementById('marquee').innerHTML = hd.join('&emsp;')
-    }, 1000)
-}
-
-function lM() {
-    
 }
 
 console.log('[CustomCookies] finding the body...' + chk())

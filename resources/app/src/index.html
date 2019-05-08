@@ -23,5 +23,9 @@
                 break
             }
         })
+
+        ipcRenderer.on('openDevTools', () => {
+            webview.openDevTools()
+        })
     </script>
 </body>

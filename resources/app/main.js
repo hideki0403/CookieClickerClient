@@ -160,6 +160,28 @@ app.on('ready', function() {
       submenu: [
         { label: 'ページ再読み込み', click: function(e, f) {f.reload()} },
         { type: 'separator'},
+        { 
+          label: 'ツール',
+          submenu: [
+            {
+              label: '連打ツール',
+              type: 'checkbox',
+              checked: store('renda'),
+              click: function() {
+                if(store('renda')) {
+                  config.set('renda', false)
+                } else {
+                  dialog.showMessageBox({
+                    title: '警告!!!',
+                    detail: '連打ツールを使用するにあたって、以下の注意を必ずお読みください。\n\n・ゲームバランスが崩壊する可能性があります。\n・CPU使用率が上がります\n・このツールの連打力は1000クリック/秒です。理論値です。\n・音とエフェクトが物凄くうるさいので「数字表示」をOFFに、音量を0%にすることを推奨します。\n・適度に使いましょう。乱用は厳禁です。\n\n以上に同意できた場合のみ使用してください。\nこれは再起動後に有効になります。'
+                  })
+                  config.set('renda', true)
+                }
+              }
+            }
+          ]
+        },
+        { type: 'separator'},
         { label: '再起動', click: function() {app.relaunch(); app.exit()} },
         { label: '終了', click: function() {app.exit()} }
       ]
@@ -247,9 +269,14 @@ app.on('ready', function() {
               label: 'デバッグ',
               submenu: [
                 {
-                  label: '開発者ツール',
+                  label: '開発者ツール (Renderer)',
                   click: function() {
                     mainWindow.openDevTools()
+                  }
+                }, {
+                  label: '開発者ツール (WebView)',
+                  click: function() {
+                    mainWindow.webContents.send('openDevTools')
                   }
                 }
               ]
@@ -287,6 +314,7 @@ app.on('ready', function() {
   const trayIcon = new Tray(__dirname + '/src/icon.png')
   var contextMenu = Menu.buildFromTemplate([
     { label: 'ウィンドウを表示', click: function() {mainWindow.show()} },
+    { type: 'separator' },
     { label: '更新があるか確認', click: function() {appUpdater('m')} },
     { label: 'このソフトについて', click: function() {openAboutWindow(abouts)}},
     { type: 'separator' },

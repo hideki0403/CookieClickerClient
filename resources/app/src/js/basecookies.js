@@ -52,6 +52,11 @@ function cB() {
                     document.getElementById('backgroundLeftCanvas').height = document.body.clientHeight
                     document.getElementById('backgroundCanvas').height = document.body.clientHeight
 
+                    // スクロールバー変更
+                    document.body.style.setProperty('::-webkit-scrollbar', 'width: 10px')
+                    document.body.style.setProperty('::-webkit-scrollbar-track', 'background: #fff;　border-left: solid 1px #ececec;')
+                    document.body.style.setProperty('::-webkit-scrollbar-thumb', 'background: #ccc; border-radius: 10px; box-shadow: inset 0 0 0 2px #fff;')
+
                     clearInterval(rT)
 
                     if(store.get('save-cookie')) {
@@ -82,6 +87,10 @@ function cB() {
 
             setInterval(function() { sV() }, 30000)
 
+            if(store.get('renda')) {
+                console.log('[CustomCookies] Enable AutoClicker' + cR())
+            }
+
         } else {
             chk()
             console.log('[CustomCookies] Can\'t find the body...')
@@ -101,6 +110,13 @@ function sD() {
         }
         ipcRenderer.sendToHost('cookieData', cD)
     }, 2000)
+}
+
+function cR() {
+    setInterval(function() {
+        Game.ClickCookie()
+        Game.lastClick=0
+    }, 1000/1000)
 }
 
 console.log('[CustomCookies] finding the body...' + chk())

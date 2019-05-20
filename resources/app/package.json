@@ -1,6 +1,6 @@
 {
   "name": "cookie-clicker-client",
-  "version": "2.4.3",
+  "version": "2.4.4",
   "description": "",
   "updatelog": "アップデーター本体を切り替えました。最新版をダウンロードしてください。",
   "main": "main.js",

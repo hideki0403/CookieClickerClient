@@ -13,6 +13,7 @@ const dialog = electron.dialog
 const autoUpdater = electron.autoUpdater
 const powerSaveBlocker = electron.powerSaveBlocker
 const shell = electron.shell
+const Notification = electron.Notification
 const openAboutWindow = require('about-window').default
 const windowStateKeeper = require('electron-window-state')
 const Store = require('electron-store')
@@ -137,224 +138,244 @@ if(store('powersaveblocker')) {
   powerSaveBlocker.start('prevent-app-suspension')
 }
 
-app.on('ready', function() {
+if (!app.requestSingleInstanceLock()) {
+  app.exit()
+} else {
+  app.on('second-instance', (e, c, w) => {
+    mainWindow.show()
+  })
 
-  const state = windowStateKeeper({
-    defaultWidth: 1000,
-    defaultHeight: 800
+  app.on('ready', function() {
+
+    const state = windowStateKeeper({
+      defaultWidth: 1000,
+      defaultHeight: 800
+    })
+    
+    mainWindow = new BrowserWindow({show: false, x: state.x, y: state.y, width: state.width, height: state.height, icon: __dirname + '/src/icon.png'})
+  
+    mainWindow.webContents.on('did-finish-load', () => {
+      if(!store('visible')) {
+        mainWindow.show()
+      }
+    })
+  
+    updateRPC('')
+  
+    const menu = Menu.buildFromTemplate([
+      {
+        label: 'メニュー',
+        submenu: [
+          { label: 'ページ再読み込み', click: function(e, f) {f.reload()} },
+          { type: 'separator'},
+          { 
+            label: 'ツール',
+            submenu: [
+              {
+                label: '連打ツール',
+                type: 'checkbox',
+                checked: store('renda'),
+                click: function() {
+                  if(store('renda')) {
+                    config.set('renda', false)
+                  } else {
+                    dialog.showMessageBox({
+                      title: '警告!!!',
+                      detail: '連打ツールを使用するにあたって、以下の注意を必ずお読みください。\n\n・ゲームバランスが崩壊する可能性があります。\n・CPU使用率が上がります\n・このツールの連打力は1000クリック/秒です。理論値です。\n・音とエフェクトが物凄くうるさいので「数字表示」をOFFに、音量を0%にすることを推奨します。\n・適度に使いましょう。乱用は厳禁です。\n\n以上に同意できた場合のみ使用してください。\nこれは再起動後に有効になります。'
+                    })
+                    config.set('renda', true)
+                  }
+                }
+              }
+            ]
+          },
+          { type: 'separator'},
+          { label: '再起動', click: function() {app.relaunch(); app.exit()} },
+          { label: '終了', click: function() {app.exit()} }
+        ]
+      }, {
+        label: '設定',
+        submenu: [
+          {
+            label: 'スタートアップに登録する',
+            type: 'checkbox',
+            checked: store('startup'),
+            click: function() {
+              if(store('startup')) {
+                autolauncher.disable()
+                config.set('startup', false)
+              } else {
+                autolauncher.enable()
+                config.set('startup', true)
+              }
+            }
+          }, {
+            label: '起動時にウィンドウを表示しない',
+            type: 'checkbox',
+            checked: store('visible'),
+            click: function() {
+              if(store('visible')) {
+                config.set('visible', false)
+              } else {
+                config.set('visible', true)
+              }
+            }
+          }, {
+            label: 'DiscordRPCを無効化する',
+            type: 'checkbox',
+            checked: store('disableRPC'),
+            click: function() {
+              if(store('disableRPC')) {
+                config.set('disableRPC', false)
+              } else {
+                config.set('disableRPC', true)
+              }
+            }
+          }, {
+            type: 'separator'
+          }, {
+            label: '詳細設定',
+            submenu: [
+              {
+                label: 'データを外部保存する',
+                type: 'checkbox',
+                checked: store('save-cookie'),
+                click: function() {
+                  if(store('save-cookie')) {
+                    config.set('save-cookie', false)
+                  } else {
+                    config.set('save-cookie', true)
+                  }
+                }
+              }, {
+                label: '描画優先度を下げない',
+                type: 'checkbox',
+                checked: store('rendererblocker'),
+                click: function() {
+                  showDialog('変更を適応するためには再起動をしてください')
+                  if(store('rendererblocker')) {
+                    config.set('rendererblocker', false)
+                  } else {
+                    config.set('rendererblocker', true)
+                  }
+                }
+              }, {
+                label: '動作優先度を下げない',
+                type: 'checkbox',
+                checked: store('powersaveblocker'),
+                click: function() {
+                  showDialog('変更を適応するためには再起動をしてください')
+                  if(store('powersaveblocker')) {
+                    config.set('powersaveblocker', false)
+                  } else {
+                    config.set('powersaveblocker', true)
+                  }
+                }
+              }, {
+                type: 'separator'
+              }, {
+                label: 'デバッグ',
+                submenu: [
+                  {
+                    label: '開発者ツール (Renderer)',
+                    click: function() {
+                      mainWindow.openDevTools()
+                    }
+                  }, {
+                    label: '開発者ツール (WebView)',
+                    click: function() {
+                      mainWindow.webContents.send('openDevTools')
+                    }
+                  }
+                ]
+              }
+  
+            ]
+          }
+        ]
+      }, {
+        label: 'ヘルプ',
+        submenu: [
+          { label: 'ヘルプを開く', click: function() {shell.openExternal('https://github.com/hideki0403/CookieClickerClient/wiki/help')}},
+          { label: '更新があるか確認', click: function() {appUpdater('m')} },
+          { type: 'separator' },
+          { label: 'バージョン情報', click: function() {openAboutWindow(abouts)}}
+        ]
+      }
+    ])
+  
+    mainWindow.setMenu(menu)
+    mainWindow.loadURL('file://' + __dirname + '/src/index.html')
+    if(!app.isPackaged) {
+      // if not packaged, open the devtools
+      mainWindow.openDevTools()
+    }
+  
+    var abouts = {
+      icon_path: __dirname + '/src/icon.png',
+      product_name: 'CookieClickerClient',
+      description: 'クッキー職人用クライアント',
+      copyright: 'Copyright (C) 2019 yukineko',
+      use_version_info: true
+    }
+  
+    const trayIcon = new Tray(__dirname + '/src/icon.png')
+    var contextMenu = Menu.buildFromTemplate([
+      { label: 'ウィンドウを表示', click: function() {mainWindow.show()} },
+      { type: 'separator' },
+      { label: '更新があるか確認', click: function() {appUpdater('m')} },
+      { label: 'このソフトについて', click: function() {openAboutWindow(abouts)}},
+      { type: 'separator' },
+      { label: '再起動', click: function() {app.relaunch(); app.exit()} },
+      { label: '終了', click: function() {app.exit()} }
+    ])
+    trayIcon.setContextMenu(contextMenu)
+    trayIcon.setToolTip('Loading - CCC v' + app.getVersion())
+  
+    trayIcon.on('click', function () {
+      if(mainWindow.isVisible()) {
+        mainWindow.close()
+      } else {
+        mainWindow.show()
+      }
+    })
+  
+    mainWindow.on('close', (event) => {
+      event.preventDefault()
+      mainWindow.hide()
+      /*
+      if(!store('notification')) {
+        console.log('enable')
+        var n = new Notification({
+          title: 'CookieClickerClient',
+          body: 'CookieClickerClientは通知バーに格納されました。\nアイコンをクリックすることでウィンドウを再表示できます。\nこのメッセージは次回以降表示されません。'
+        })
+
+        n.show()
+      }
+      */
+    })
+  
+    mainWindow.webContents.on('new-window', (ev,url)=> {
+      shell.openExternal(url)
+    })
+  
+    // update the tray tip
+    ipcMain.on('cookieData', (event, arg) => {
+      trayIcon.setToolTip(arg.cookies + ' - CCC v' + app.getVersion())
+      updateRPC(arg)
+    })
+  
+    // shortcut key
+    ipcMain.on('shortcut', (event, arg) => {
+      switch(arg) {
+        case 'space':
+          mainWindow.hide()
+      }
+    })
+  
+    state.manage(mainWindow)
+  
   })
   
-  mainWindow = new BrowserWindow({show: false, x: state.x, y: state.y, width: state.width, height: state.height, icon: __dirname + '/src/icon.png'})
-
-  mainWindow.webContents.on('did-finish-load', () => {
-    if(!store('visible')) {
-      mainWindow.show()
-    }
-  })
-
-  updateRPC('')
-
-  const menu = Menu.buildFromTemplate([
-    {
-      label: 'メニュー',
-      submenu: [
-        { label: 'ページ再読み込み', click: function(e, f) {f.reload()} },
-        { type: 'separator'},
-        { 
-          label: 'ツール',
-          submenu: [
-            {
-              label: '連打ツール',
-              type: 'checkbox',
-              checked: store('renda'),
-              click: function() {
-                if(store('renda')) {
-                  config.set('renda', false)
-                } else {
-                  dialog.showMessageBox({
-                    title: '警告!!!',
-                    detail: '連打ツールを使用するにあたって、以下の注意を必ずお読みください。\n\n・ゲームバランスが崩壊する可能性があります。\n・CPU使用率が上がります\n・このツールの連打力は1000クリック/秒です。理論値です。\n・音とエフェクトが物凄くうるさいので「数字表示」をOFFに、音量を0%にすることを推奨します。\n・適度に使いましょう。乱用は厳禁です。\n\n以上に同意できた場合のみ使用してください。\nこれは再起動後に有効になります。'
-                  })
-                  config.set('renda', true)
-                }
-              }
-            }
-          ]
-        },
-        { type: 'separator'},
-        { label: '再起動', click: function() {app.relaunch(); app.exit()} },
-        { label: '終了', click: function() {app.exit()} }
-      ]
-    }, {
-      label: '設定',
-      submenu: [
-        {
-          label: 'スタートアップに登録する',
-          type: 'checkbox',
-          checked: store('startup'),
-          click: function() {
-            if(store('startup')) {
-              autolauncher.disable()
-              config.set('startup', false)
-            } else {
-              autolauncher.enable()
-              config.set('startup', true)
-            }
-          }
-        }, {
-          label: '起動時にウィンドウを表示しない',
-          type: 'checkbox',
-          checked: store('visible'),
-          click: function() {
-            if(store('visible')) {
-              config.set('visible', false)
-            } else {
-              config.set('visible', true)
-            }
-          }
-        }, {
-          label: 'DiscordRPCを無効化する',
-          type: 'checkbox',
-          checked: store('disableRPC'),
-          click: function() {
-            if(store('disableRPC')) {
-              config.set('disableRPC', false)
-            } else {
-              config.set('disableRPC', true)
-            }
-          }
-        }, {
-          type: 'separator'
-        }, {
-          label: '詳細設定',
-          submenu: [
-            {
-              label: 'データを外部保存する',
-              type: 'checkbox',
-              checked: store('save-cookie'),
-              click: function() {
-                if(store('save-cookie')) {
-                  config.set('save-cookie', false)
-                } else {
-                  config.set('save-cookie', true)
-                }
-              }
-            }, {
-              label: '描画優先度を下げない',
-              type: 'checkbox',
-              checked: store('rendererblocker'),
-              click: function() {
-                showDialog('変更を適応するためには再起動をしてください')
-                if(store('rendererblocker')) {
-                  config.set('rendererblocker', false)
-                } else {
-                  config.set('rendererblocker', true)
-                }
-              }
-            }, {
-              label: '動作優先度を下げない',
-              type: 'checkbox',
-              checked: store('powersaveblocker'),
-              click: function() {
-                showDialog('変更を適応するためには再起動をしてください')
-                if(store('powersaveblocker')) {
-                  config.set('powersaveblocker', false)
-                } else {
-                  config.set('powersaveblocker', true)
-                }
-              }
-            }, {
-              type: 'separator'
-            }, {
-              label: 'デバッグ',
-              submenu: [
-                {
-                  label: '開発者ツール (Renderer)',
-                  click: function() {
-                    mainWindow.openDevTools()
-                  }
-                }, {
-                  label: '開発者ツール (WebView)',
-                  click: function() {
-                    mainWindow.webContents.send('openDevTools')
-                  }
-                }
-              ]
-            }
-
-          ]
-        }
-      ]
-    }, {
-      label: 'ヘルプ',
-      submenu: [
-        { label: 'ヘルプを開く', click: function() {shell.openExternal('https://github.com/hideki0403/CookieClickerClient/wiki/help')}},
-        { label: '更新があるか確認', click: function() {appUpdater('m')} },
-        { type: 'separator' },
-        { label: 'バージョン情報', click: function() {openAboutWindow(abouts)}}
-      ]
-    }
-  ])
-
-  mainWindow.setMenu(menu)
-  mainWindow.loadURL('file://' + __dirname + '/src/index.html')
-  if(!app.isPackaged) {
-    // if not packaged, open the devtools
-    mainWindow.openDevTools()
-  }
-
-  var abouts = {
-    icon_path: __dirname + '/src/icon.png',
-    product_name: 'CookieClickerClient',
-    description: 'クッキー職人用クライアント',
-    copyright: 'Copyright (C) 2019 yukineko',
-    use_version_info: true
-  }
-
-  const trayIcon = new Tray(__dirname + '/src/icon.png')
-  var contextMenu = Menu.buildFromTemplate([
-    { label: 'ウィンドウを表示', click: function() {mainWindow.show()} },
-    { type: 'separator' },
-    { label: '更新があるか確認', click: function() {appUpdater('m')} },
-    { label: 'このソフトについて', click: function() {openAboutWindow(abouts)}},
-    { type: 'separator' },
-    { label: '再起動', click: function() {app.relaunch(); app.exit()} },
-    { label: '終了', click: function() {app.exit()} }
-  ])
-  trayIcon.setContextMenu(contextMenu)
-  trayIcon.setToolTip('Loading - CCC v' + app.getVersion())
-
-  trayIcon.on('click', function () {
-    if(mainWindow.isVisible()) {
-      mainWindow.close()
-    } else {
-      mainWindow.show()
-    }
-  })
-
-  mainWindow.on('close', (event) => {
-    event.preventDefault()
-    mainWindow.hide()
-  })
-
-  mainWindow.webContents.on('new-window', (ev,url)=> {
-    shell.openExternal(url)
-  })
-
-  // update the tray tip
-  ipcMain.on('cookieData', (event, arg) => {
-    trayIcon.setToolTip(arg.cookies + ' - CCC v' + app.getVersion())
-    updateRPC(arg)
-  })
-
-  // shortcut key
-  ipcMain.on('shortcut', (event, arg) => {
-    switch(arg) {
-      case 'space':
-        mainWindow.hide()
-    }
-  })
-
-  state.manage(mainWindow)
-
-})
+}

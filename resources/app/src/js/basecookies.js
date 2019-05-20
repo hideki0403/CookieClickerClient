@@ -52,11 +52,6 @@ function cB() {
                     document.getElementById('backgroundLeftCanvas').height = document.body.clientHeight
                     document.getElementById('backgroundCanvas').height = document.body.clientHeight
 
-                    // スクロールバー変更
-                    document.body.style.setProperty('::-webkit-scrollbar', 'width: 10px')
-                    document.body.style.setProperty('::-webkit-scrollbar-track', 'background: #fff;　border-left: solid 1px #ececec;')
-                    document.body.style.setProperty('::-webkit-scrollbar-thumb', 'background: #ccc; border-radius: 10px; box-shadow: inset 0 0 0 2px #fff;')
-
                     clearInterval(rT)
 
                     if(store.get('save-cookie')) {

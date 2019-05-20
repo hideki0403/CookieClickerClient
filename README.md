@@ -25,7 +25,7 @@
 ## フォークして自分だけのCookie(ry を作りたい！！
 フォーク大歓迎です。ビルド方法については[こちら](https://github.com/hideki0403/CookieClickerClient/wiki/build)をご覧ください
 
-## わからなことがある
+## わからないことがある
 [ヘルプをみてね](https://github.com/hideki0403/CookieClickerClient/wiki/help)
 
 ## SpecialThanks

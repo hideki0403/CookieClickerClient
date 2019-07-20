@@ -152,7 +152,7 @@ if (!app.requestSingleInstanceLock()) {
       defaultHeight: 800
     })
     
-    mainWindow = new BrowserWindow({show: false, x: state.x, y: state.y, width: state.width, height: state.height, icon: __dirname + '/src/icon.png'})
+    mainWindow = new BrowserWindow({show: false, x: state.x, y: state.y, width: state.width, height: state.height, icon: __dirname + '/src/icon.png', webPreferences: {nodeIntegration: true}})
   
     mainWindow.webContents.on('did-finish-load', () => {
       if(!store('visible')) {

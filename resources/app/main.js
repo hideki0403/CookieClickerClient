@@ -152,7 +152,7 @@ if (!app.requestSingleInstanceLock()) {
       defaultHeight: 800
     })
     
-    mainWindow = new BrowserWindow({show: false, x: state.x, y: state.y, width: state.width, height: state.height, icon: __dirname + '/src/icon.png', webPreferences: {nodeIntegration: true}})
+    mainWindow = new BrowserWindow({show: false, x: state.x, y: state.y, width: state.width, height: state.height, icon: __dirname + '/src/icon.png', webPreferences: {nodeIntegration: true, webviewTag: true}})
   
     mainWindow.webContents.on('did-finish-load', () => {
       if(!store('visible')) {
@@ -304,7 +304,8 @@ if (!app.requestSingleInstanceLock()) {
       }
     ])
   
-    mainWindow.setMenu(menu)
+    Menu.setApplicationMenu(menu)
+
     mainWindow.loadURL('file://' + __dirname + '/src/index.html')
     if(!app.isPackaged) {
       // if not packaged, open the devtools
@@ -315,7 +316,7 @@ if (!app.requestSingleInstanceLock()) {
       icon_path: __dirname + '/src/icon.png',
       product_name: 'CookieClickerClient',
       description: 'クッキー職人用クライアント',
-      copyright: 'Copyright (C) 2019 yukineko',
+      copyright: 'Copyright (C) 2019-2020 yukineko',
       use_version_info: true
     }
   
@@ -362,7 +363,7 @@ if (!app.requestSingleInstanceLock()) {
   
     // update the tray tip
     ipcMain.on('cookieData', (event, arg) => {
-      trayIcon.setToolTip(arg.cookies + ' - CCC v' + app.getVersion())
+      trayIcon.setToolTip(arg.cookies + '\nCCC v' + app.getVersion())
       updateRPC(arg)
     })
   

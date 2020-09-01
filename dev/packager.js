@@ -1,5 +1,5 @@
 var packager = require('electron-packager')
-var src = '../resources/app'
+var src = '../app'
 var config = require(src + '/package.json')
 var electronInstaller = require('electron-winstaller')
 

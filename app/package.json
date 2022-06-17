@@ -9,7 +9,7 @@
     "auto-launch": "^5.0.5",
     "discord-rich-presence": "0.0.8",
     "download": "^7.1.0",
-    "electron": "^10.2.0",
+    "electron": "^15.5.5",
     "electron-progressbar": "^1.2.0",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^6.0.0",
